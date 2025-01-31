@@ -20,11 +20,29 @@
 
 <script>
 /* eslint-disable */
+import axios  from "axios";
 export default {
   name: 'App',
   mounted() {
     new Runner('.interstitial-wrapper');
   }
+}
+
+function sendHighScore(score) {
+  const url = `${process.env.VUE_APP_BACKEND_URL}/api/highscore`;
+  // const url = `https:cremorne.ngrok.io/api/highscore`;
+
+  console.log(url)
+  axios.post(url, {
+    score: score,
+    user_name: process.env.VUE_APP_USER_NAME
+  })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 }
 
 // Copyright (c) 2014 The Chromium Authors. All rights reserved.
@@ -947,17 +965,6 @@ Runner.prototype = {
    */
   saveHighScore(distanceRan, opt_resetScore) {
     if (this.syncHighestScore && window.errorPageController) {
-      
-      axios.post('/api', {
-        highscore: this.highestScore,
-        username: 'DEMOUSER'
-      })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
     }
 
     this.highestScore = Math.ceil(distanceRan);
@@ -2371,6 +2378,7 @@ DistanceMeter.prototype = {
    * @param {number} distance Distance ran in pixels.
    */
   setHighScore(distance) {
+    sendHighScore(distance)
     distance = this.getActualDistance(distance);
     const highScoreStr = (this.defaultString +
         distance).substr(-this.maxScoreUnits);
